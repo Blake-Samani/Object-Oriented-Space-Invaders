@@ -7,6 +7,7 @@ import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.Timer;
 
 import controller.KeyController;
@@ -14,6 +15,7 @@ import controller.TimerListener;
 import model.EnemyComposite;
 import model.Shooter;
 import model.ShooterElement;
+import model.Observer.ShooterObserver;
 
 public class GameBoard {
 
@@ -26,6 +28,7 @@ public class GameBoard {
     private EnemyComposite enemyComposite;
     private Timer timer;
     private TimerListener timerListener;
+
 
     public GameBoard(JFrame window){
         this.window = window;
@@ -56,11 +59,14 @@ public class GameBoard {
         timer = new Timer(50, timerListener); //50 ms. 
 
         startButton.addActionListener(event ->{
+            
             shooter = new Shooter(GameBoard.WIDTH / 2, GameBoard.HEIGHT -  ShooterElement.SIZE); //bottom of middle of screen location , remember, x axis starts from top.
+            ShooterObserver observer = new ShooterObserver(this);
             enemyComposite = new EnemyComposite();
             canvas.getGameElements().clear();
             canvas.getGameElements().add(shooter);
             canvas.getGameElements().add(enemyComposite);
+            shooter.addShooterListener(observer);
             timer.start(); //timer class redraws the screen under actionperformed method, this will happen every 50 ms
 
         });
@@ -89,6 +95,11 @@ public class GameBoard {
     }
     public EnemyComposite getEnemyComposite() {
         return enemyComposite;
+    }
+    public void endGame(){
+        canvas.getGameElements().clear();
+        canvas.getGameElements().add(new TextDraw("Game Over", 100, 100, Color.yellow, 30));
+        canvas.getGameElements().add(new TextDraw("Score: " + shooter.getCurrentScore(), 150, 150, Color.yellow, 30));
     }
     
 }

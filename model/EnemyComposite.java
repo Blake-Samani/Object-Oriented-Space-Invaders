@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Random;
 
+import model.Shooter.Event;
 import view.GameBoard;
 
 public class EnemyComposite extends GameElement {
@@ -12,13 +13,16 @@ public class EnemyComposite extends GameElement {
     public static final int NROW = 2;
     public static final int NCOLS = 10;
     public static final int ENEMY_SIZE = 20;
+    public static final int Y_MOVE = 0;
     public static final int UNIT_MOVE = 5;
     private boolean movingToRight = true;
     private Random random = new Random();
+    private boolean gameOver;
+    private boolean isEmpty;
 
     private ArrayList<ArrayList<GameElement>> rows; //array of array of game elements
     private ArrayList<GameElement> bombs;
-
+ 
     public EnemyComposite(){
         rows = new ArrayList<>();
         bombs = new ArrayList<>();
@@ -52,16 +56,19 @@ public class EnemyComposite extends GameElement {
     @Override
     public void animate() {
         int dx = UNIT_MOVE;
+        int dy = Y_MOVE;
         if(movingToRight){ //if moving to right and reaches end of screen
             if(rightEnd() >= GameBoard.WIDTH){
                 dx = -dx; //subtract from delta x
+                dy = ENEMY_SIZE;
                 movingToRight = false;
-            }
+            } 
             
         }else{
                 dx = -dx;
                 if(leftEnd() <= 0 ){
                 dx = -dx;
+                dy = ENEMY_SIZE;
                 movingToRight = true;
             }
     }
@@ -70,6 +77,10 @@ public class EnemyComposite extends GameElement {
         for(var row: rows){
             for(var e: row){
             e.x += dx;
+            e.y += dy;
+            if(e.y == GameBoard.HEIGHT){
+                gameOver = true;
+            }
             }
         }
 
@@ -133,7 +144,8 @@ public class EnemyComposite extends GameElement {
                     if(enemy.collideWith(bullet)){
                         removeBullets.add(bullet);
                         removeEnemies.add(enemy);
-
+                        shooter.increaseScore();
+                        
                     }
                 }
             }
@@ -155,6 +167,41 @@ public class EnemyComposite extends GameElement {
         }
         shooter.getWeapons().removeAll(removeBullets);
         bombs.removeAll(removeBombs);
+
+        // bombs vs shooter
+        var removeShooterBlocks = new ArrayList<GameElement>();
+        for (var blocks : shooter.getShooterComponents()) {
+            for (var b : bombs) {
+                if (blocks.collideWith(b)) {
+                    removeShooterBlocks.add(blocks);
+                    removeBombs.add(b);
+                    if(shooter.getShooterComponents().size() == 4){
+                        shooter.notifyObservers(Event.FOUR);
+                    }else if(shooter.getShooterComponents().size() == 3){
+                    shooter.notifyObservers(Event.THREE);
+                    }else if(shooter.getShooterComponents().size() == 2){
+                        shooter.notifyObservers(Event.TWO);
+                    }else if(shooter.getShooterComponents().size() == 1){
+                        shooter.notifyObservers(Event.ONE);
+                    }else if(shooter.getShooterComponents().size() == 0){
+                        shooter.notifyObservers(Event.ZERO);
+                    }
+
+
+                }
+            }
+        }
+        shooter.getShooterComponents().removeAll(removeShooterBlocks);
+        bombs.removeAll(removeBombs);
     }
+
+    public boolean getGameOver(){
+        return gameOver;
+    }
+
+    public boolean getisEmpty(){
+        return isEmpty;
+    }
+  
     
 }

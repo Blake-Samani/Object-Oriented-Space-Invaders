@@ -9,14 +9,16 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import model.GameElement;
+import model.Shooter;
 
 public class MyCanvas extends JPanel{
 
     private GameBoard gameBoard;
+    
     private ArrayList<GameElement> gameElements = new ArrayList<>();
 
-    public MyCanvas(GameBoard gameBoard, int width, int height){
-        this.gameBoard = gameBoard;
+    public MyCanvas(GameBoard gameboard, int width, int height){
+        this.gameBoard = gameboard;
         setBackground(Color.black);
         setPreferredSize(new Dimension(width, height));
     }
@@ -29,6 +31,10 @@ public class MyCanvas extends JPanel{
 
         for(var e: gameElements){
             e.render(g2);
+        }
+        if(gameBoard.getShooter() != null){
+        g2.setColor(Color.red);
+        g2.drawString(gameBoard.getShooter().getCurrentScore() , 400 , 10);
         }
     }
 

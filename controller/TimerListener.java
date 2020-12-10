@@ -70,6 +70,12 @@ public class TimerListener implements ActionListener {
        shooter.removeBulletsOutOfBound();
        enemyComposite.removeBombsOutOfBound();
        enemyComposite.processCollision(shooter);
+       if(enemyComposite.getGameOver() == true){
+           gameBoard.endGame();
+       }else if(enemyComposite.getisEmpty() == true){
+           gameBoard.endGame();
+       }
+       
 
     }
 
